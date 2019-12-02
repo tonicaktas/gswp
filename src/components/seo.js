@@ -11,29 +11,36 @@ import Helmet from "react-helmet"
 import { useStaticQuery, graphql } from "gatsby"
 
 function SEO({ description, lang, meta, title }) {
-  const { site } = useStaticQuery(
+  const {
+    site: {
+      edges: [{ node: site }],
+    },
+  } = useStaticQuery(
     graphql`
-      query {
-        site {
-          siteMetadata {
-            title
-            description
-            author
+      query yoastQuery {
+        site: allWordpressPage {
+          edges {
+            node {
+              yoast_meta {
+                yoast_wpseo_title
+                yoast_wpseo_metadesc
+              }
+            }
           }
         }
       }
     `
   )
 
-  const metaDescription = description || site.siteMetadata.description
-
+  // const metaDescription = description || site.siteMetadata.description
+  const metaDescription = site.yoast_meta.yoast_wpseo_metadesc
   return (
     <Helmet
       htmlAttributes={{
         lang,
       }}
       title={title}
-      titleTemplate={`%s | ${site.siteMetadata.title}`}
+      titleTemplate={`%s | ${metaDescription}`}
       meta={[
         {
           name: `description`,
@@ -57,7 +64,7 @@ function SEO({ description, lang, meta, title }) {
         },
         {
           name: `twitter:creator`,
-          content: site.siteMetadata.author,
+          content: metaDescription,
         },
         {
           name: `twitter:title`,
